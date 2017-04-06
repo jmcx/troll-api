@@ -14,6 +14,6 @@ class ModerationResource:
 
         resp.body = json.dumps(result)
 
-clf = load_pipeline('/Users/manu/Downloads/wiki-detox-light/src/modeling', 'toxicity_linear_char_oh_d')
+clf = load_pipeline('.', 'toxicity_linear_char_oh_d')
 api = falcon.API()
 api.add_route('/moderate', ModerationResource())
