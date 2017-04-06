@@ -21,14 +21,7 @@ class ModerationResource:
             result = {
                 'score': str(score[0])
             }
-
-            if req.get_param_as_bool('proba'):
-                proba = clf.predict_proba([req.params['message']])
-                result['proba'] = {
-                    'min': str(proba[0][0]),
-                    'max': str(proba[0][1])
-                }
-
+            
             resp.body = json.dumps(result)
 
 clf = load_pipeline('.', 'toxicity_linear_char_oh_d')
