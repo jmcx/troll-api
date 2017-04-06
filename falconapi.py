@@ -1,18 +1,35 @@
 import falcon
 import json
+import os
 from serialization import load_pipeline
 
 class ModerationResource:
     def on_get(self, req, resp):
         """Handles GET requests"""
 
-        score = clf.predict_proba([req.params['message']])
+        score = clf.predict([req.params['message']])
 
-        result = {
-            'score': str(score[0])
-        }
+        if req.accept == "image/png":
+            if score[0]:
+                image_path = 'assets/troll.png'
+            else:
+                image_path = 'assets/unicorn.png'
+            resp.content_type = 'image/png'
+            resp.stream = open(image_path, 'rb')
+            resp.stream_len = os.path.getsize(image_path)
+        else:
+            result = {
+                'score': str(score[0])
+            }
 
-        resp.body = json.dumps(result)
+            if req.get_param_as_bool('proba'):
+                proba = clf.predict_proba([req.params['message']])
+                result['proba'] = {
+                    'min': str(proba[0][0]),
+                    'max': str(proba[0][1])
+                }
+
+            resp.body = json.dumps(result)
 
 clf = load_pipeline('.', 'toxicity_linear_char_oh_d')
 api = falcon.API()
